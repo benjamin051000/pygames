@@ -51,10 +51,12 @@ class Snake(pygame.sprite.Sprite):
             self.last_key = K_RIGHT
 
         # We don't have to update every tail square. Just move the last square to the 2nd spot (right behind the head).
-        sprite_list = self.tail.sprites()
-        # for idx in range(len(sprite_list), 1, -1):
-        #     sprite_list[idx].rect.move_ip(sprite_list[idx].rect.x, sprite_list[idx].rect.y)
-            
+        sprite_list: list = self.tail.sprites()
+        
+        for i in range(len(sprite_list)-1, 0, -1):  # Iterate from tail to head
+            # Move the last sprite to the one ahead of it.
+            x, y = sprite_list[i-1].rect.x, sprite_list[i-1].rect.y
+            sprite_list[i].rect.move_ip(x, y)
 
         self.rect.move_ip(*self.direction)
 
@@ -162,7 +164,7 @@ def main():
         screen.blit(apple.surf, apple.rect)
         pygame.display.update()
 
-        clock.tick(10)
+        clock.tick(5)
 
 
 if __name__ == '__main__':
