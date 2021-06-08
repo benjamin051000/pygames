@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/python
-# Edit at https://www.toptal.com/developers/gitignore?templates=python
+# Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -142,11 +142,26 @@ dmypy.json
 .pytype/
 
 # operating system-related files
-*.DS_Store #file properties cache/storage on macOS
-Thumbs.db #thumbnail cache on Windows
+# file properties cache/storage on macOS
+*.DS_Store
+# thumbnail cache on Windows
+Thumbs.db
 
 # profiling data
 .prof
 
 
-# End of https://www.toptal.com/developers/gitignore/api/python
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
