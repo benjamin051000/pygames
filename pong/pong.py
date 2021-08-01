@@ -16,22 +16,52 @@ SCREENSIZE = WIDTH, HEIGHT = 640, 480
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((15, 15))
+        self.surf = pygame.Surface((14, 14))
         self.rect = self.surf.get_rect(
             center=(WIDTH/2, HEIGHT/2)
             # topleft=(10,10)
         )
-        self.vx = 4 * random.choice([-1, 1])
-        self.vy = 3 * random.choice([-1, 1])
         # Only draw the circle once
         self.surf.fill(Colors.WHITE)
         # pygame.draw.circle(self.surf, Colors.WHITE, self.rect.center, 10)
+        self.reset()
 
-    def update(self, wall_group):
+    def reset(self):
+        """ Reset the Ball's position and velocity. """
+        self.rect.x = WIDTH // 2
+        self.rect.y = HEIGHT // 2  + 50
+        self.vx = 5 * random.choice([-1, 1])
+        self.vy = 3 * random.choice([-1, 1])
+        self.ghost = False
+
+    def update(self, paddle_group):
+               
         # Check for collisions
-        if pygame.sprite.spritecollideany(self, wall_group):
-            self.vx *= -1  # TODO edge case where Ball hits top/bottom of Paddle
-            
+        if not self.ghost and (paddle := pygame.sprite.spritecollideany(self, paddle_group)):
+            # Check if ball hit top or bottom of the paddle
+            close_to_side = abs(self.rect.left - paddle.rect.right) <= abs(self.vx) or abs(paddle.rect.left - self.rect.right) <= abs(self.vx)
+            if close_to_side:
+                self.vx *= -1
+            else:
+                close_to_top = abs(self.rect.bottom - paddle.rect.top) <= abs(self.vy - 1)
+                close_to_bot = abs(paddle.rect.bottom - self.rect.top) <= abs(self.vy - 1)
+                # close_to_center = abs(self.rect.center[1] - paddle.rect.center[1]) < 3
+                self.ghost = True
+
+                if close_to_top:
+                    # The ball could be travelling upwards.
+                    # Bounce away from the paddle.
+                    self.vy = -abs(self.vy)
+                    
+                    self.rect.bottom = paddle.rect.top
+
+                elif close_to_bot:
+                    # The ball could be travelling downwards.
+                    # Bounce away from the paddle.
+                    self.vy = abs(self.vy)
+                        
+                    self.rect.top = paddle.rect.bottom
+                
         # Check walls
         if self.rect.top <= 0:
             self.vy *= -1
@@ -41,16 +71,20 @@ class Ball(pygame.sprite.Sprite):
         self.rect.move_ip(self.vx, self.vy)
 
     def display(self, surface: pygame.Surface):
+        if self.ghost:
+            self.surf.fill(Colors.RED)
+        else:
+            self.surf.fill(Colors.WHITE)
         surface.blit(self.surf, self.rect)
 
 
 class Paddle(pygame.sprite.Sprite):
     def __init__(self, x_position, up_key, down_key):
         super().__init__()
-        self.surf = pygame.Surface((15, 100))
+        self.surf = pygame.Surface((15,125))
         self.surf.fill(Colors.WHITE)
         self.rect = self.surf.get_rect(center=(x_position, HEIGHT / 2))
-        self.speed = 5
+        self.speed = 7
         # Keys for Paddle movement
         self.up_key = up_key
         self.down_key = down_key
@@ -71,6 +105,7 @@ class Paddle(pygame.sprite.Sprite):
 
     def display(self, surf: pygame.Surface):
         surf.blit(self.surf, self.rect)
+
 
 class PaddleAI(Paddle):
     def __init__(self, x_position):
@@ -115,11 +150,11 @@ class Wall(pygame.sprite.Sprite):
 def main():
 
     screen = pygame.display.set_mode(SCREENSIZE)
-
+    pygame.display.set_caption('Pong')
+    
     clock = pygame.time.Clock()
 
     ball = Ball()
-
 
     player1 = Paddle(10, K_UP, K_DOWN)
     player2 = PaddleAI(WIDTH - 10)
@@ -140,25 +175,27 @@ def main():
         # Move the ball. Check for collisions.
         ball.update(paddle_group)
 
-        pressed_keys = pygame.key.get_pressed()
+        # Check for points
+        if ball.rect.right < 0: # Player 2 scored
+            ball.reset()
+        elif ball.rect.left > WIDTH: # Player 1 scored
+            ball.reset()
 
         # Move the Paddles
+        pressed_keys = pygame.key.get_pressed()
         player1.update(pressed_keys)
         player2.update_ai(ball)
 
         # Reset screen
         screen.fill(Colors.BLACK)
 
-        ball.display(screen)
         player1.display(screen)
         player2.display(screen)
+        ball.display(screen)
 
         pygame.display.update()
 
         clock.tick(60)
-
-        
-
 
 if __name__ == "__main__":
     main()
