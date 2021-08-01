@@ -156,13 +156,13 @@ basic_font = pygame.font.Font('freesansbold.ttf', 32)
 middle_strip = pygame.Rect(screen_width/2 - 2,0,4,screen_height)
 
 # Game objects
-player = Player('Paddle.png',screen_width - 20,screen_height/2,5)
-opponent = Opponent('Paddle.png',20,screen_width/2,5)
+player = Player('pong/Paddle.png',screen_width - 20,screen_height/2,5)
+opponent = Opponent('pong/Paddle.png',20,screen_width/2,5)
 paddle_group = pygame.sprite.Group()
 paddle_group.add(player)
 paddle_group.add(opponent)
 
-ball = Ball('Ball.png',screen_width/2,screen_height/2,4,4,paddle_group)
+ball = Ball('pong/Ball.png',screen_width/2,screen_height/2,4,4,paddle_group)
 ball_sprite = pygame.sprite.GroupSingle()
 ball_sprite.add(ball)
 
